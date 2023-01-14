@@ -1,17 +1,18 @@
 import { Card, CardContent, FormControl, FormControlLabel, FormLabel, Radio, RadioGroup } from '@mui/material';
-import React, { ChangeEvent, useState } from 'react'
+import React, { ChangeEvent, FC, useState } from 'react'
 import { Layout } from '../components/Layout';
 import Cookies from 'js-cookie';
 
-const themeChanger = () => {
-    const [currentTheme, setCurrentTheme] = useState('light');
+interface Props {
+    theme: string
+}
+const themeChanger: FC<Props> = ({ theme }) => {
+
+    const [currentTheme, setCurrentTheme] = useState(theme);
 
     const onThemeChange = (event: ChangeEvent<HTMLInputElement>) => {
         const themeToChange = event.target.value;
-
-        setCurrentTheme(themeToChange);
-
-        Cookies.set('theme', 'dark')
+        Cookies.set('theme', themeToChange)
     }
 
 
@@ -34,6 +35,22 @@ const themeChanger = () => {
             </Card>
         </Layout>
     )
+}
+
+// You should use getServerSideProps when:
+// - Only if you need to pre-render a page whose data must be fetched at request time
+import { GetServerSideProps } from 'next'
+
+export const getServerSideProps: GetServerSideProps = async ({ req }) => {
+    const { theme = 'light' } = req.cookies;
+
+    const validThemes = ['light', 'dark', 'custom'];
+
+    return {
+        props: {
+            theme: validThemes.includes(theme) ? theme : 'light'
+        }
+    }
 }
 
 export default themeChanger;
